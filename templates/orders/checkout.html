@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Checkout</h2>
+    <p>You are about to pay KSh {{ total }} for the following items:</p>
+    <ul>
+        {% for item in cart_items %}
+        <li>{{ item.product.name }} x{{ item.quantity }} = KSh {{ item.subtotal }}</li>
+        {% endfor %}
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Confirm & Pay</button>
+        <a href="{% url 'orders:cart_view' %}" class="btn btn-secondary">Back to Cart</a>
+    </form>
+</div>
+{% endblock %}

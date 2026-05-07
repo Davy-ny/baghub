@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Admin Dashboard</h2>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Recent Paid Orders
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                        <ul class="list-group">
+                            {% for order in recent_orders %}
+                                <li class="list-group-item">
+                                    Order #{{ order.id }} - {{ order.user.username }} - KSh {{ order.total_amount }} - {{ order.created_at|date:"Y-m-d H:i" }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No paid orders yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    Stock Alerts
+                </div>
+                <div class="card-body">
+                    <h5>Low Stock (≤2)</h5>
+                    {% if low_stock_products %}
+                        <ul>
+                            {% for product in low_stock_products %}
+                                <li>{{ product.name }} - Stock: {{ product.stock }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No low stock items.</p>
+                    {% endif %}
+                    <h5 class="mt-3">Out of Stock</h5>
+                    {% if out_of_stock %}
+                        <ul>
+                            {% for product in out_of_stock %}
+                                <li>{{ product.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>All products in stock.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

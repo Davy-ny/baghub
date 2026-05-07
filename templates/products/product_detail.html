@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ product.image.url }}" class="img-fluid">
+        </div>
+        <div class="col-md-6">
+            <h2>{{ product.name }}</h2>
+            <p>{{ product.description }}</p>
+            <h3 class="text-success">KSh {{ product.price }}</h3>
+            <p>
+                {% if product.stock > 0 %}
+                    <span class="badge bg-success">In stock ({{ product.stock }} available)</span>
+                {% else %}
+                    <span class="badge bg-danger">Out of stock</span>
+                {% endif %}
+            </p>
+            {% if product.stock > 0 %}
+                <button class="btn btn-success add-to-cart" data-product-id="{{ product.id }}">Add to Cart</button>
+            {% else %}
+                <button class="btn btn-secondary" disabled>Out of Stock</button>
+            {% endif %}
+            <a href="{% url 'products:product_list' %}" class="btn btn-secondary">Back to Bags</a>
+            {% if user.is_authenticated and user.role == 'admin' %}
+                <hr>
+                <a href="{% url 'products:product_edit' product.id %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'products:product_delete' product.id %}" class="btn btn-danger" onclick="return confirm('Delete this product?')">Delete</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector('.add-to-cart')?.addEventListener('click', function() {
+        fetch('{% url "orders:cart_add" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ product_id: {{ product.id }}, quantity: 1 })
+        })
+        .then(response => response.json())
+        .then(data => alert(data.message));
+    });
+</script>
+{% endblock %}

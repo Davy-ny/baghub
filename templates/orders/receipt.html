@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h3>Payment Receipt</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Date:</strong> {{ order.created_at }}</p>
+            <p><strong>Customer:</strong> {{ order.user.username }} ({{ order.user.email }})</p>
+            <p><strong>Total Paid:</strong> KSh {{ order.total_amount }}</p>
+            <p><strong>Status:</strong> 
+                {% if order.status == 'paid' %} Paid, awaiting delivery
+                {% elif order.status == 'delivered' %} Delivered
+                {% else %} {{ order.status }} {% endif %}
+            </p>
+            <h5>Items:</h5>
+            <ul>
+                {% for item in order.items.all %}
+                    <li>{{ item.product.name }} x{{ item.quantity }} = KSh {{ item.price|floatformat:2 }}</li>
+                {% endfor %}
+            </ul>
+            <hr>
+            {% if order.status == 'paid' %}
+                <form method="post" action="{% url 'orders:confirm_delivery' order.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Confirm Delivery</button>
+                </form>
+            {% elif order.status == 'delivered' %}
+                <div class="alert alert-success">Delivery confirmed. Thank you for shopping with BagHub!</div>
+            {% endif %}
+            <a href="{% url 'products:product_list' %}" class="btn btn-secondary mt-3">Continue Shopping</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

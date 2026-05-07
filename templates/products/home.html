@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - BagHub{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4">🎩 Welcome to BagHub</h1>
+    
+    {% if user.is_authenticated %}
+        <p class="lead">Hello, <strong>{{ user.username }}</strong>! Ready to find some amazing bags?</p>
+        <a href="{% url 'accounts:logout' %}" class="btn btn-outline-secondary">Logout</a>
+        
+    {% else %}
+        <p class="lead">Your premier destination for vintage and thrifted bags</p>
+        <div class="mt-4">
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Sign Up</a>
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary btn-lg">Login</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

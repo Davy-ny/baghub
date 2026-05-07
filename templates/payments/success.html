@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h2><i class="fas fa-check-circle"></i> Payment Successful!</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success text-center">
+                        Thank you for your purchase. Your order has been confirmed.
+                    </div>
+
+                    <!-- Order Details -->
+                    <h4>Order Summary</h4>
+                    <table class="table table-bordered">
+                        <tr><th>Order ID</th><td>{{ order.id }}</td></tr>
+                        <tr><th>Date</th><td>{{ order.created_at }}</td></tr>
+                        <tr><th>Total Amount</th><td class="fw-bold">KSh {{ order.total_amount }}</td></tr>
+                        <tr><th>Status</th><td><span class="badge bg-success">Paid</span></td></tr>
+                    </table>
+
+                    <!-- Customer Details -->
+                    <h4>Customer Information</h4>
+                    <table class="table table-bordered">
+                        <tr><th>Name</th><td>{{ order.user.get_full_name|default:order.user.username }}</td></tr>
+                        <tr><th>Email</th><td>{{ order.user.email }}</td></tr>
+                        <tr><th>Phone</th><td>{{ order.user.phone_number }}</td></tr>
+                    </table>
+
+                    <!-- Vendor Details -->
+                    <h4>Vendor Information</h4>
+                    <table class="table table-bordered">
+                        <tr><th>Vendor</th><td>{{ vendor_name }}</td></tr>
+                        <tr><th>Email</th><td>{{ vendor_email }}</td></tr>
+                        <tr><th>Phone</th><td>{{ vendor_phone }}</td></tr>
+                        <tr><th>Address</th><td>{{ vendor_address }}</td></tr>
+                    </table>
+
+                    <!-- Items Purchased -->
+                    <h4>Items Purchased</h4>
+                    <ul class="list-group mb-3">
+                        {% for item in order.items.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ item.product.name }} x{{ item.quantity }}
+                                <span class="badge bg-primary rounded-pill">KSh {{ item.price|floatformat:2 }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Confirmation Receipt Button -->
+                    <div class="text-center mt-4">
+                        <form method="post" action="{% url 'orders:confirm_delivery' order.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-truck"></i> Confirm Receipt
+                            </button>
+                        </form>
+                        <a href="{% url 'products:product_list' %}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-shopping-bag"></i> Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
