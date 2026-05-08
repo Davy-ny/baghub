@@ -2,16 +2,51 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Checkout</h2>
-    <p>You are about to pay KSh {{ total }} for the following items:</p>
-    <ul>
-        {% for item in cart_items %}
-        <li>{{ item.product.name }} x{{ item.quantity }} = KSh {{ item.subtotal }}</li>
-        {% endfor %}
-    </ul>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Confirm & Pay</button>
-        <a href="{% url 'orders:cart_view' %}" class="btn btn-secondary">Back to Cart</a>
-    </form>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4>Order Summary</h4>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        {% for item in cart_items %}
+                        <li>{{ item.product.name }} x{{ item.quantity }} = KSh {{ item.subtotal }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h4>Total: KSh {{ total }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4>Payment Information</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">M-Pesa Phone Number</label>
+                            <input type="tel" 
+                                   class="form-control" 
+                                   id="phone_number" 
+                                   name="phone_number" 
+                                   value="{{ phone_number }}" 
+                                   placeholder="0712345678 or 254712345678" 
+                                   required>
+                            <div class="form-text">Enter the phone number registered with M-Pesa.</div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="save_number" name="save_number" value="1">
+                            <label class="form-check-label" for="save_number">Save this number to my profile for future payments</label>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Pay with M-Pesa</button>
+                        <a href="{% url 'orders:cart_view' %}" class="btn btn-secondary w-100 mt-2">Back to Cart</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

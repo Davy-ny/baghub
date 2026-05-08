@@ -10,18 +10,22 @@ from .mpesa import stk_push
 import json
 
 @login_required
-def initiate_mpesa_payment(request, order_id):
+def initiate_mpesa_payment_with_phone(request, order_id, phone):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     if order.status != 'pending':
         messages.error(request, 'This order has already been processed.')
         return redirect('products:product_list')
     
-    phone = request.user.phone_number
-    if not phone:
-        messages.error(request, 'Please update your profile with a phone number.')
-        return redirect('accounts:profile')  # we need a profile view
+    # Check stock again
+    for item in order.items.all():
+        if item.product.stock < item.quantity:
+            messages.error(request, f"Sorry, {item.product.name} is now out of stock.")
+            order.status = 'cancelled'
+            order.save()
+            return redirect('orders:cart_view')
     
-    # Format phone number
+    # Format phone number (already normalized in checkout)
+    # But ensure it's in correct format 254XXXXXXXXX
     if phone.startswith('0'):
         phone = '254' + phone[1:]
     elif phone.startswith('+'):
@@ -36,16 +40,17 @@ def initiate_mpesa_payment(request, order_id):
     )
     
     if response.get('ResponseCode') == '0':
-        # Save checkout request ID
         payment, created = Payment.objects.get_or_create(
             order=order,
-            defaults={'amount': order.total_amount}
+            defaults={
+                'amount': order.total_amount,
+            }
         )
         payment.mpesa_checkout_request_id = response.get('CheckoutRequestID')
         payment.amount = order.total_amount
         payment.save()
         messages.info(request, 'STK push sent. Please check your phone and enter PIN.')
-        return redirect('orders:payment_status', order_id=order.id)
+        return redirect('payment:payment_status', order_id=order.id)
     else:
         messages.error(request, f"Payment initiation failed: {response.get('errorMessage', 'Unknown error')}")
         return redirect('orders:checkout')
