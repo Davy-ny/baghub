@@ -129,9 +129,9 @@ from django.urls import reverse
 @login_required
 def receipt(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    if order.status != 'paid':
+    if order.status not in ['paid', 'delivered']:
         messages.warning(request, 'This order has not been paid yet.')
-        return redirect('orders:cart_view')
+        return redirect('products:product_list')
     return render(request, 'orders/receipt.html', {'order': order})
 
 @login_required
